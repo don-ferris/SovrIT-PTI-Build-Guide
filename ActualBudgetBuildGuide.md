@@ -492,7 +492,11 @@ Create:
 Test manually:
 
 ```bash
-curl -d "Test notification" https://ntfy.sh/YOUR_TOPIC
+curl \
+  -H "Priority: urgent" \
+  -H "Title: SovrIT Test Alert" \
+  -d "Test notification" \
+  https://ntfy.sh/YOUR_TOPIC
 ```
 
 Validation:
@@ -535,8 +539,11 @@ Values:
 | Field | Value |
 |---|---|
 | Type | ntfy |
+| Priority | urgent |
+| Title | SovrIT Monitoring |
 | URL | https://ntfy.sh |
 | Topic | your topic |
+| Tags | warning,rotating_light |
 
 Test notification.
 
@@ -589,27 +596,95 @@ chmod 600 /root/.ssh/config
 
 ## Add Public Key to GitHub
 
-Display key:
+Display the public key:
 
 ```bash
 cat /root/.ssh/github_selfhosted.pub
 ```
 
-Add contents to:
-- GitHub
-- Settings
-- SSH and GPG Keys
+You should see output beginning with something like:
 
----
+```text
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
+```
 
-## Test GitHub SSH
+Copy the ENTIRE line to your clipboard.
+
+### Add the key in GitHub
+
+1. Log into GitHub.
+
+2. Click your profile picture (top-right corner).
+
+3. Click:
+
+```text
+Settings
+```
+
+4. In the left sidebar, scroll down and click:
+
+```text
+SSH and GPG keys
+```
+
+Direct URL:
+
+```text
+https://github.com/settings/keys
+```
+
+5. Click:
+
+```text
+New SSH key
+```
+
+6. Fill out:
+
+| Field | Value |
+|---|---|
+| Title | `SovrIT VPS Backups` (or any descriptive name) |
+| Key type | Authentication Key |
+| Key | Paste the entire public key |
+
+Example title:
+
+```text
+SovrIT VPS Backups
+```
+
+7. Click:
+
+```text
+Add SSH key
+```
+
+8. GitHub may ask for:
+- password
+- passkey
+- MFA confirmation
+
+Approve the request.
+
+### Validate GitHub SSH Access
+
+Back on the VPS:
 
 ```bash
 ssh -T git@github.com
 ```
 
-Validation:
-- GitHub authentication success message
+Expected result:
+
+```text
+Hi YOUR_USERNAME! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+This confirms:
+- SSH key works
+- GitHub trusts the VPS
+- Git operations will authenticate successfully
 
 ---
 
@@ -632,16 +707,66 @@ DO NOT:
 
 # 18. Configure Actual Budget Git Backup
 
-## Initialize Repo
+Actual Budget changes frequently because it contains your budget database and uploaded files.
+
+We want:
+
+- Git versioning
+- private GitHub replication
+- automated offsite backup
+- recoverability
+
+Because Actual Budget changes often, we will back it up **hourly**.
+
+---
+
+## Change Into the Actual Budget Directory
 
 ```bash
 cd /root/docker/actual-budget
+```
+
+Validate:
+
+```bash
+pwd
+```
+
+Look for:
+
+```text
+/root/docker/actual-budget
+```
+
+---
+
+## Initialize Repository
+
+Initialize Git:
+
+```bash
 git init
+```
+
+Validation:
+
+```bash
+git status
+```
+
+Look for:
+
+```text
+On branch master
+
+No commits yet
 ```
 
 ---
 
 ## Create `.gitignore`
+
+Create the file:
 
 ```bash
 nano .gitignore
@@ -658,39 +783,152 @@ tmp/
 temp/
 ```
 
+Save and exit.
+
+Validation:
+
+```bash
+cat .gitignore
+```
+
+Look for:
+- the contents above
+
 ---
 
-## Initial Commit
+## Create Initial Commit
+
+IMPORTANT:
+
+You **must create an initial commit before pushing to GitHub**.
+
+Stage all files:
 
 ```bash
 git add .
+```
+
+Validate:
+
+```bash
+git status
+```
+
+Look for staged files including:
+
+- `.env`
+- `.gitignore`
+- `docker-compose.yml`
+- `data/`
+
+Create the commit:
+
+```bash
 git commit -m "Initial Actual Budget setup"
 ```
 
+Validation:
+
+Look for output similar to:
+
+```text
+[master (root-commit) abc1234] Initial Actual Budget setup
+```
+
+Important:
+
+- `(root-commit)` confirms the repository has an initial commit
+
 ---
 
-## Add Remote
+## Create GitHub Repository
+
+In GitHub:
+
+Create a NEW PRIVATE repository.
+
+Recommended name:
+
+```text
+SelfHosted.VPS.Actual-Budget
+```
+
+Important:
+
+- PRIVATE
+- NO README
+- NO `.gitignore`
+- NO license
+
+---
+
+## Add GitHub Remote
+
+Add the remote:
 
 ```bash
-git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.SovrIT-VPS.Actual-Budget.git
+git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git
+```
+
+Example format:
+
+```text
+git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git
+```
+
+Validate:
+
+```bash
+git remote -v
+```
+
+Look for:
+
+```text
+origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git (fetch)
+origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git (push)
 ```
 
 ---
 
-## Push
+## Push to GitHub
+
+Push the repository:
 
 ```bash
 git push -u origin master
 ```
 
 Validation:
-- repo appears on GitHub
+
+Look for output similar to:
+
+```text
+[new branch]      master -> master
+branch 'master' set up to track 'origin/master'
+```
+
+Then open the repository in GitHub.
+
+Look for:
+
+- `.env`
+- `.gitignore`
+- `docker-compose.yml`
+- `data/`
+
+This confirms:
+
+- Git versioning works
+- SSH authentication works
+- offsite replication works
+- Actual Budget is recoverable
 
 ---
 
-# 19. Configure Actual Budget Backup Script
+## Create Backup Script
 
-Create script:
+Create the backup script:
 
 ```bash
 nano /root/scripts/actual-budget-backup.sh
@@ -717,23 +955,299 @@ else
 fi
 ```
 
+Save and exit.
+
 Make executable:
 
 ```bash
 chmod +x /root/scripts/actual-budget-backup.sh
 ```
 
+Validation:
+
+```bash
+ls -lah /root/scripts
+```
+
+Look for:
+
+```text
+actual-budget-backup.sh
+```
+
+with executable permissions (`x`).
+
 ---
 
-# 20. Configure Uptime Kuma Git Backup
+## Configure Hourly Cron Backup
 
-Repeat similar steps for:
+Edit root crontab:
+
+```bash
+crontab -e
+```
+
+Add:
+
+```cron
+0 * * * * /root/scripts/actual-budget-backup.sh >> /var/log/actual-budget-backup.log 2>&1
+```
+
+Meaning:
+
+- minute `0`
+- every hour
+- every day
+- run backup script
+- log output
+
+Validation:
+
+```bash
+crontab -l
+```
+
+Look for:
+
+```cron
+0 * * * * /root/scripts/actual-budget-backup.sh >> /var/log/actual-budget-backup.log 2>&1
+```
+
+This confirms:
+
+- Actual Budget is automatically backed up hourly
+- backups are committed to Git
+- backups are replicated to GitHub
+- recovery is automated
+  
+---
+
+# 19. Configure Uptime Kuma Git Backup
+
+Uptime Kuma changes occasionally because it stores:
+
+- monitor configuration
+- notification configuration
+- uptime history
+- alerting settings
+
+We want:
+
+- Git versioning
+- private GitHub replication
+- automated offsite backup
+- recoverability
+
+Because Uptime Kuma changes occasionally, we will back it up **weekly**.
+
+---
+
+## Change Into the Uptime Kuma Directory
+
+```bash
+cd /root/docker/uptime-kuma
+```
+
+Validate:
+
+```bash
+pwd
+```
+
+Look for:
 
 ```text
 /root/docker/uptime-kuma
 ```
 
-Backup script:
+---
+
+## Initialize Repository
+
+Initialize Git:
+
+```bash
+git init
+```
+
+Validation:
+
+```bash
+git status
+```
+
+Look for:
+
+```text
+On branch master
+
+No commits yet
+```
+
+---
+
+## Create `.gitignore`
+
+Create the file:
+
+```bash
+nano .gitignore
+```
+
+Contents:
+
+```gitignore
+*.log
+.DS_Store
+Thumbs.db
+```
+
+Save and exit.
+
+Validation:
+
+```bash
+cat .gitignore
+```
+
+Look for:
+- the contents above
+
+---
+
+## Create Initial Commit
+
+IMPORTANT:
+
+You **must create an initial commit before pushing to GitHub**.
+
+Stage all files:
+
+```bash
+git add .
+```
+
+Validate:
+
+```bash
+git status
+```
+
+Look for staged files including:
+
+- `.env`
+- `.gitignore`
+- `docker-compose.yml`
+- `data/`
+
+Create the commit:
+
+```bash
+git commit -m "Initial Uptime Kuma setup"
+```
+
+Validation:
+
+Look for output similar to:
+
+```text
+[master (root-commit) abc1234] Initial Uptime Kuma setup
+```
+
+Important:
+
+- `(root-commit)` confirms the repository has an initial commit
+
+---
+
+## Create GitHub Repository
+
+In GitHub:
+
+Create a NEW PRIVATE repository.
+
+Recommended name:
+
+```text
+SelfHosted.VPS.Uptime-Kuma
+```
+
+Important:
+
+- PRIVATE
+- NO README
+- NO `.gitignore`
+- NO license
+
+---
+
+## Add GitHub Remote
+
+Add the remote:
+
+```bash
+git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git
+```
+
+Example format:
+
+```text
+git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git
+```
+
+Validate:
+
+```bash
+git remote -v
+```
+
+Look for:
+
+```text
+origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git (fetch)
+origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git (push)
+```
+
+---
+
+## Push to GitHub
+
+Push the repository:
+
+```bash
+git push -u origin master
+```
+
+Validation:
+
+Look for output similar to:
+
+```text
+[new branch]      master -> master
+branch 'master' set up to track 'origin/master'
+```
+
+Then open the repository in GitHub.
+
+Look for:
+
+- `.env`
+- `.gitignore`
+- `docker-compose.yml`
+- `data/`
+
+This confirms:
+
+- Git versioning works
+- SSH authentication works
+- offsite replication works
+- Uptime Kuma is recoverable
+
+---
+
+## Create Backup Script
+
+Create the backup script:
 
 ```bash
 nano /root/scripts/uptime-kuma-backup.sh
@@ -760,29 +1274,33 @@ else
 fi
 ```
 
+Save and exit.
+
 Make executable:
 
 ```bash
 chmod +x /root/scripts/uptime-kuma-backup.sh
 ```
 
----
+Validation:
 
-# 21. Configure Autoheal Git Backup
-
-Repeat Git setup for:
-
-```text
-/root/docker/autoheal
+```bash
+ls -lah /root/scripts
 ```
 
-No cron job required.
+Look for:
+
+```text
+uptime-kuma-backup.sh
+```
+
+with executable permissions (`x`).
 
 ---
 
-# 22. Configure Cron Jobs
+## Configure Weekly Cron Backup
 
-Edit crontab:
+Edit root crontab:
 
 ```bash
 crontab -e
@@ -791,9 +1309,17 @@ crontab -e
 Add:
 
 ```cron
-0 * * * * /root/scripts/actual-budget-backup.sh >> /var/log/actual-budget-backup.log 2>&1
 0 3 * * 0 /root/scripts/uptime-kuma-backup.sh >> /var/log/uptime-kuma-backup.log 2>&1
 ```
+
+Meaning:
+
+- minute `0`
+- hour `3`
+- Sunday (`0`)
+- every week
+- run backup script
+- log output
 
 Validation:
 
@@ -802,7 +1328,326 @@ crontab -l
 ```
 
 Look for:
-- both cron entries present
+
+```cron
+0 3 * * 0 /root/scripts/uptime-kuma-backup.sh >> /var/log/uptime-kuma-backup.log 2>&1
+```
+
+This confirms:
+
+- Uptime Kuma is automatically backed up weekly
+- backups are committed to Git
+- backups are replicated to GitHub
+- recovery is automated
+
+---
+
+# 20. Configure Autoheal Git Backup
+
+Autoheal changes rarely, but we still want:
+
+- Git versioning
+- private GitHub replication
+- automated offsite backup
+- recoverability
+
+Because Autoheal configuration changes infrequently, we will back it up **monthly**.
+
+---
+
+## Change Into the Autoheal Directory
+
+```bash
+cd /root/docker/autoheal
+```
+
+Validate:
+
+```bash
+pwd
+```
+
+Look for:
+
+```text
+/root/docker/autoheal
+```
+
+---
+
+## Initialize Repository
+
+Initialize Git:
+
+```bash
+git init
+```
+
+Validation:
+
+```bash
+git status
+```
+
+Look for:
+
+```text
+On branch master
+
+No commits yet
+```
+
+---
+
+## Create `.gitignore`
+
+Create the file:
+
+```bash
+nano .gitignore
+```
+
+Contents:
+
+```gitignore
+*.log
+.DS_Store
+Thumbs.db
+```
+
+Save and exit.
+
+Validation:
+
+```bash
+cat .gitignore
+```
+
+Look for:
+- the contents above
+
+---
+
+## Create Initial Commit
+
+IMPORTANT:
+
+You **must create an initial commit before pushing to GitHub**.
+
+Stage all files:
+
+```bash
+git add .
+```
+
+Validate:
+
+```bash
+git status
+```
+
+Look for staged files including:
+
+- `.gitignore`
+- `docker-compose.yml`
+
+Create the commit:
+
+```bash
+git commit -m "Initial Autoheal setup"
+```
+
+Validation:
+
+Look for output similar to:
+
+```text
+[master (root-commit) abc1234] Initial Autoheal setup
+```
+
+Important:
+
+- `(root-commit)` confirms the repository has an initial commit
+
+---
+
+## Create GitHub Repository
+
+In GitHub:
+
+Create a NEW PRIVATE repository.
+
+Recommended name:
+
+```text
+SelfHosted.VPS.Autoheal
+```
+
+Important:
+
+- PRIVATE
+- NO README
+- NO `.gitignore`
+- NO license
+
+---
+
+## Add GitHub Remote
+
+Add the remote:
+
+```bash
+git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git
+```
+
+Example format:
+
+```text
+git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git
+```
+
+Validate:
+
+```bash
+git remote -v
+```
+
+Look for:
+
+```text
+origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git (fetch)
+origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git (push)
+```
+
+---
+
+## Push to GitHub
+
+Push the repository:
+
+```bash
+git push -u origin master
+```
+
+Validation:
+
+Look for output similar to:
+
+```text
+[new branch]      master -> master
+branch 'master' set up to track 'origin/master'
+```
+
+Then open the repository in GitHub.
+
+Look for:
+
+- `.gitignore`
+- `docker-compose.yml`
+
+This confirms:
+
+- Git versioning works
+- SSH authentication works
+- offsite replication works
+- Autoheal is recoverable
+
+---
+
+## Create Backup Script
+
+Create the backup script:
+
+```bash
+nano /root/scripts/autoheal-backup.sh
+```
+
+Contents:
+
+```bash
+#!/usr/bin/env bash
+
+set -e
+
+REPO_DIR="/root/docker/autoheal"
+
+cd "$REPO_DIR"
+
+git add .
+
+if ! git diff --cached --quiet; then
+    git commit -m "Automated backup $(date '+%Y-%m-%d %H:%M:%S')"
+    git push
+else
+    echo "No changes to commit."
+fi
+```
+
+Save and exit.
+
+Make executable:
+
+```bash
+chmod +x /root/scripts/autoheal-backup.sh
+```
+
+Validation:
+
+```bash
+ls -lah /root/scripts
+```
+
+Look for:
+
+```text
+autoheal-backup.sh
+```
+
+with executable permissions (`x`).
+
+---
+
+## Configure Monthly Cron Backup
+
+Edit root crontab:
+
+```bash
+crontab -e
+```
+
+Add:
+
+```cron
+0 4 1 * * /root/scripts/autoheal-backup.sh >> /var/log/autoheal-backup.log 2>&1
+```
+
+Meaning:
+
+- minute `0`
+- hour `4`
+- day `1`
+- every month
+- run backup script
+- log output
+
+Validation:
+
+```bash
+crontab -l
+```
+
+Look for:
+
+```cron
+0 4 1 * * /root/scripts/autoheal-backup.sh >> /var/log/autoheal-backup.log 2>&1
+```
+
+This confirms:
+
+- Autoheal is automatically backed up monthly
+- backups are committed to Git
+- backups are replicated to GitHub
+- recovery is automated
 
 ---
 
