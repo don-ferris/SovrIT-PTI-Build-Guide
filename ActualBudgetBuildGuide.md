@@ -26,6 +26,7 @@ This guide deploys:
 
 - Git versioning
 - private GitHub replication
+- git SSH
 - cron automation
 - per-service repositories
 
@@ -162,7 +163,7 @@ Look for:
 
 # 8. Deploy Actual Budget
 
-## Create Directory
+## 8.1. Create Directory
 
 ```bash
 mkdir -p /root/docker/actual-budget
@@ -171,7 +172,7 @@ cd /root/docker/actual-budget
 
 ---
 
-## Create `.env`
+## 8.2. Create `.env`
 
 ```bash
 nano .env
@@ -187,7 +188,7 @@ ACTUAL_DATA_DIR=./data
 
 ---
 
-## Create `docker-compose.yml`
+## 8.3. Create `docker-compose.yml`
 
 ```bash
 nano docker-compose.yml
@@ -228,7 +229,7 @@ services:
 
 ---
 
-## Validate Compose
+## 8.4. Validate Compose
 
 ```bash
 docker compose config
@@ -240,7 +241,7 @@ Look for:
 
 ---
 
-## Start Actual Budget
+## 8.5. Start Actual Budget
 
 ```bash
 docker compose up -d
@@ -299,7 +300,7 @@ Validation:
 
 # 10. Deploy Autoheal
 
-## Create Directory
+## 10.1. Create Directory
 
 ```bash
 mkdir -p /root/docker/autoheal
@@ -308,7 +309,7 @@ cd /root/docker/autoheal
 
 ---
 
-## Create Compose File
+## 10.2. Create Compose File
 
 ```bash
 nano docker-compose.yml
@@ -333,7 +334,7 @@ services:
 
 ---
 
-## Start Autoheal
+## 10.3. Start Autoheal
 
 ```bash
 docker compose up -d
@@ -353,7 +354,7 @@ Look for:
 
 # 11. Deploy Uptime Kuma
 
-## Create Directory
+## 11.1. Create Directory
 
 ```bash
 mkdir -p /root/docker/uptime-kuma
@@ -362,7 +363,7 @@ cd /root/docker/uptime-kuma
 
 ---
 
-## Create `.env`
+## 11.2. Create `.env`
 
 ```bash
 nano .env
@@ -378,7 +379,7 @@ KUMA_DATA_DIR=./data
 
 ---
 
-## Create Compose File
+## 11.3. Create Compose File
 
 ```bash
 nano docker-compose.yml
@@ -419,7 +420,7 @@ services:
 
 ---
 
-## Start Uptime Kuma
+## 11.4. Start Uptime Kuma
 
 ```bash
 docker compose up -d
@@ -556,7 +557,7 @@ Attach notification to Actual Budget monitor.
 
 # 16. Configure GitHub SSH Access
 
-## Generate SSH Key
+## 16.1. Generate SSH Key
 
 ```bash
 ssh-keygen -t ed25519 -C "selfhosted-backups"
@@ -570,7 +571,7 @@ Suggested filename:
 
 ---
 
-## Create SSH Config
+## 16.2. Create SSH Config
 
 ```bash
 nano /root/.ssh/config
@@ -594,7 +595,7 @@ chmod 600 /root/.ssh/config
 
 ---
 
-## Add Public Key to GitHub
+## 16.3. Add Public Key to GitHub
 
 Display the public key:
 
@@ -720,14 +721,14 @@ Because Actual Budget changes often, we will back it up **hourly**.
 
 ---
 
-## Change Into the Actual Budget Directory
+## 18.1. Change Into the Actual Budget Directory
 
 ```bash
 cd /root/docker/actual-budget
 ```
 ---
 
-## Initialize Repository
+## 18.2. Initialize Repository
 
 Initialize Git:
 
@@ -751,7 +752,7 @@ No commits yet
 
 ---
 
-## Create `.gitignore`
+## 18.3. Create `.gitignore`
 
 Create the file:
 
@@ -774,7 +775,7 @@ Save and exit.
 
 ---
 
-## Create Initial Commit
+## 18.4. Create Initial Commit
 
 IMPORTANT:
 
@@ -813,7 +814,7 @@ Important:
 
 ---
 
-## Create GitHub Repository
+## 18.5. Create GitHub Repository
 
 In GitHub:
 
@@ -834,7 +835,7 @@ Important:
 
 ---
 
-## Add GitHub Remote
+## 18.6. Add GitHub Remote
 
 Back on the VPS, add the remote:
 
@@ -863,7 +864,7 @@ origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git (push)
 
 ---
 
-## Push to GitHub
+## 18.7. Push to GitHub
 
 Push the repository:
 
@@ -898,7 +899,7 @@ This confirms:
 
 ---
 
-## Create Backup Script
+## 18.8. Create Backup Script
 
 Create the backup script:
 
@@ -951,7 +952,7 @@ with executable permissions (`x`).
 
 ---
 
-## Configure Hourly Cron Backup
+## 18.9. Configure Hourly Cron Backup
 
 Edit root crontab:
 
@@ -1014,7 +1015,7 @@ Because Uptime Kuma changes occasionally, we will back it up **weekly**.
 
 ---
 
-## Change Into the Uptime Kuma Directory
+## 19.1. Change Into the Uptime Kuma Directory
 
 ```bash
 cd /root/docker/uptime-kuma
@@ -1046,7 +1047,7 @@ No commits yet
 
 ---
 
-## Create `.gitignore`
+## 19.2. Create `.gitignore`
 
 Create the file:
 
@@ -1066,7 +1067,7 @@ Save and exit.
 
 ---
 
-## Create Initial Commit
+## 19.3. Create Initial Commit
 
 IMPORTANT:
 
@@ -1105,7 +1106,7 @@ Important:
 
 ---
 
-## Create GitHub Repository
+## 19.4. Create GitHub Repository
 
 In GitHub:
 
@@ -1126,7 +1127,7 @@ Important:
 
 ---
 
-## Add GitHub Remote
+## 19.5. Add GitHub Remote
 
 Back on the VPS, add the remote:
 
@@ -1155,7 +1156,7 @@ origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git (push)
 
 ---
 
-## Push to GitHub
+## 19.6. Push to GitHub
 
 Push the repository:
 
@@ -1190,7 +1191,7 @@ This confirms:
 
 ---
 
-## Create Backup Script
+## 19.7. Create Backup Script
 
 Create the backup script:
 
@@ -1243,7 +1244,7 @@ with executable permissions (`x`).
 
 ---
 
-## Configure Weekly Cron Backup
+## 19.8. Configure Weekly Cron Backup
 
 Edit root crontab:
 
@@ -1300,7 +1301,7 @@ Because Autoheal configuration changes infrequently, we will back it up **monthl
 
 ---
 
-## Change Into the Autoheal Directory
+## 20.1. Change Into the Autoheal Directory
 
 ```bash
 cd /root/docker/autoheal
@@ -1308,7 +1309,7 @@ cd /root/docker/autoheal
 
 ---
 
-## Initialize Repository
+## 20.2. Initialize Repository
 
 Initialize Git:
 
@@ -1326,7 +1327,7 @@ No commits yet
 
 ---
 
-## Create `.gitignore`
+## 20.3. Create `.gitignore`
 
 Create the file:
 
@@ -1346,7 +1347,7 @@ Save and exit.
 
 ---
 
-## Create Initial Commit
+## 20.4. Create Initial Commit
 
 IMPORTANT:
 
@@ -1383,7 +1384,7 @@ Important:
 
 ---
 
-## Create GitHub Repository
+## 20.5. Create GitHub Repository
 
 In GitHub:
 
@@ -1404,7 +1405,7 @@ Important:
 
 ---
 
-## Add GitHub Remote
+## 20.6. Add GitHub Remote
 
 Back in the VPS, add the remote:
 
@@ -1433,7 +1434,7 @@ origin  git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git (push)
 
 ---
 
-## Push to GitHub
+## 20.7. Push to GitHub
 
 Push the repository:
 
@@ -1466,7 +1467,7 @@ This confirms:
 
 ---
 
-## Create Backup Script
+## 20.8. Create Backup Script
 
 Create the backup script:
 
@@ -1519,7 +1520,7 @@ with executable permissions (`x`).
 
 ---
 
-## Configure Monthly Cron Backup
+## 20.9. Configure Monthly Cron Backup
 
 Edit root crontab:
 
