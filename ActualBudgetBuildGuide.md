@@ -725,19 +725,6 @@ Because Actual Budget changes often, we will back it up **hourly**.
 ```bash
 cd /root/docker/actual-budget
 ```
-
-Validate:
-
-```bash
-pwd
-```
-
-Look for:
-
-```text
-/root/docker/actual-budget
-```
-
 ---
 
 ## Initialize Repository
@@ -785,15 +772,6 @@ temp/
 
 Save and exit.
 
-Validation:
-
-```bash
-cat .gitignore
-```
-
-Look for:
-- the contents above
-
 ---
 
 ## Create Initial Commit
@@ -805,13 +783,7 @@ You **must create an initial commit before pushing to GitHub**.
 Stage all files:
 
 ```bash
-git add .
-```
-
-Validate:
-
-```bash
-git status
+git add . && git status
 ```
 
 Look for staged files including:
@@ -864,7 +836,7 @@ Important:
 
 ## Add GitHub Remote
 
-Add the remote:
+Back on the VPS, add the remote:
 
 ```bash
 git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git
@@ -873,7 +845,7 @@ git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.
 Example format:
 
 ```text
-git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git
+git@github.com:YOUR_USERNAME/SelfHosted.VPS.Actual-Budget.git && git remote -v
 ```
 
 Validate:
@@ -1048,18 +1020,6 @@ Because Uptime Kuma changes occasionally, we will back it up **weekly**.
 cd /root/docker/uptime-kuma
 ```
 
-Validate:
-
-```bash
-pwd
-```
-
-Look for:
-
-```text
-/root/docker/uptime-kuma
-```
-
 ---
 
 ## Initialize Repository
@@ -1104,15 +1064,6 @@ Thumbs.db
 
 Save and exit.
 
-Validation:
-
-```bash
-cat .gitignore
-```
-
-Look for:
-- the contents above
-
 ---
 
 ## Create Initial Commit
@@ -1124,13 +1075,7 @@ You **must create an initial commit before pushing to GitHub**.
 Stage all files:
 
 ```bash
-git add .
-```
-
-Validate:
-
-```bash
-git status
+git add . && git status
 ```
 
 Look for staged files including:
@@ -1183,7 +1128,7 @@ Important:
 
 ## Add GitHub Remote
 
-Add the remote:
+Back on the VPS, add the remote:
 
 ```bash
 git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git
@@ -1192,7 +1137,7 @@ git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.gi
 Example format:
 
 ```text
-git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git
+git@github.com:YOUR_USERNAME/SelfHosted.VPS.Uptime-Kuma.git && git remote -v
 ```
 
 Validate:
@@ -1361,18 +1306,6 @@ Because Autoheal configuration changes infrequently, we will back it up **monthl
 cd /root/docker/autoheal
 ```
 
-Validate:
-
-```bash
-pwd
-```
-
-Look for:
-
-```text
-/root/docker/autoheal
-```
-
 ---
 
 ## Initialize Repository
@@ -1380,13 +1313,7 @@ Look for:
 Initialize Git:
 
 ```bash
-git init
-```
-
-Validation:
-
-```bash
-git status
+git init && git status
 ```
 
 Look for:
@@ -1417,15 +1344,6 @@ Thumbs.db
 
 Save and exit.
 
-Validation:
-
-```bash
-cat .gitignore
-```
-
-Look for:
-- the contents above
-
 ---
 
 ## Create Initial Commit
@@ -1437,13 +1355,7 @@ You **must create an initial commit before pushing to GitHub**.
 Stage all files:
 
 ```bash
-git add .
-```
-
-Validate:
-
-```bash
-git status
+git add . && git status
 ```
 
 Look for staged files including:
@@ -1494,7 +1406,7 @@ Important:
 
 ## Add GitHub Remote
 
-Add the remote:
+Back in the VPS, add the remote:
 
 ```bash
 git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git
@@ -1503,7 +1415,7 @@ git remote add origin git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git
 Example format:
 
 ```text
-git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git
+git@github.com:YOUR_USERNAME/SelfHosted.VPS.Autoheal.git && git remote -v
 ```
 
 Validate:
